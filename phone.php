@@ -1026,7 +1026,7 @@ function getPhonesNumbersByString($string) {
   preg_match_all($pattern11, $string, $search11);
   $pattern12 = '/\(?(?:\+62|62|0)(?:\d{2,3})?\)?[ .-]?\d{2,4}[ .-]?\d{2,4}[ .-]?\d{2,4}/i';
   preg_match_all($pattern12, $string, $search12);
-  $result = array_merge($search1[0],$search2[0],$search3[0], $search4[0], $search5[0], $search6[0], $search7[0], $search8[0], $search9[0], $search10[0], $search11[0], $search12[0]);
+  $result = array_merge($search1[0],$search2[0],$search3[0]);
   return array_unique($result, $flags = SORT_STRING);
 };
 

@@ -35,26 +35,10 @@ if ($pdfString === '') {
       ->text();
 };
 
-echo "</br>";
-if (!unlink($tempImage)) {
-    echo ("$tempImage cannot be deleted due to an error");
-}
-else {
-  echo ("$tempImage has been deleted");
-};
-echo "</br>";
-if (!unlink(sys_get_temp_dir().'\processedTempFile.pdf')) {
-    echo ("ProcessedTempFile cannot be deleted due to an error");
-}
-else {
-  echo ("ProcessedTempFile has been deleted");
-};
-echo "</br>";
-echo($pdfString);
-
+unlink(sys_get_temp_dir().'\processedTempFile.pdf')
+unlink($tempImage)
 $data = array('emails' => getEmailsByString($pdfString),
               'urls' => getUrlsByString($pdfString),
               'phones' => getPhonesNumbersByString($pdfString),
               );
-
 var_dump($data);
