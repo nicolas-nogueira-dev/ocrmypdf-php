@@ -1,7 +1,6 @@
 <?php
 require __DIR__.'/vendor/autoload.php';
 use Spatie\PdfToText\Pdf;
-//use thiagoalessio\TesseractOCR\TesseractOCR;
 
 function getEmailsByString($string) {
   $pattern = '/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]+)(?:\.[a-z]{2})?/i';
@@ -21,7 +20,6 @@ function getPhonesNumbersByString($string) {
   return array_unique($search1[0]);
 };
 
-//$fileUrl = 'https://mmedia-storage-bucket.s3.eu-west-3.amazonaws.com/files/14/bFq3WpqKn6NCEoBWN9zJLa2V0zi5Ev9ozMa9Ejyk.pdf';
 $fileUrl = 'pdf/testImage.pdf';
 
 $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
@@ -60,52 +58,3 @@ $data = array('emails' => getEmailsByString($pdfString),
               );
 
 var_dump($data);
-
-
-
-/*
-$pdfString = (new TesseractOCR("imageOutputTemp2.png"))
-//->imageData($data, $size)
-->executable('C:\ProgramData\chocolatey\lib\capture2text\tools\Capture2Text\Utils\tesseract\tesseract.exe')
-->allowlist(range('A', 'z'), range('À', 'ú'), range(0, 9), '-_@.:/')// A-zÀ-ú
-->lang('eng', 'fra')
-->run();
-*/
-/*
-$image = new imagick();
-$image->setResolution(600,600);
-$image->readImage(realpath($filename));
-$img_resol = $image->getImageResolution();
-var_dump($img_resol);
-$image->setImageFormat("png");
-//-------Transformation
-//$imageWidth = $image->getImageWidth()*2;
-//$image->resizeImage($imageWidth, 0, \Imagick::FILTER_LANCZOS, 1, false);
-//$image->enhanceImage();
-//$image->autoLevelImage();
-//$image->quantizeImage(2, Imagick::COLORSPACE_GRAY, 1, TRUE, FALSE);
-//$image->sharpenimage(20, 10, true);
-//$image->contrastImage(0);
-//$image->brightnessContrastImage(0, 50);
-//$image->resizeImage($imageWidth/2, 0, \Imagick::FILTER_LANCZOS, 1, false);
-
-//--------End Transformation
-$image->writeImage(__DIR__."/".'imageOutputTemp2'.'.png');
-
-//Using Imagick
-$data = $image->getImageBlob();
-$size = $image->getImageLength();
-*/
-/*
-$pattern = '/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]+)(?:\.[a-z]{2})?/i';
-preg_match_all($pattern, $pdfString, $matches);
-var_dump(array_unique($matches[0]));
-*/
-/*
-$image = new Imagick();
-$image->newImage(1, 1, new ImagickPixel('#ffffff'));
-$image->setImageFormat('png');
-$pngData = $image->getImagesBlob();
-echo strpos($pngData, "\x89PNG\r\n\x1a\n") === 0 ? 'Ok' : 'Failed';
-*/
-//foreach((new TesseractOCR())->availableLanguages() as $lang) echo $lang.".";
