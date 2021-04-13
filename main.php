@@ -20,23 +20,35 @@ function getPhonesNumbersByString($string) {
   return array_unique($search1[0]);
 };
 
-$fileUrl = 'pdf/testImage.pdf';
+$fileUrl = 'pdf/cv-facebook.pdf';
 
 $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
     ->setPdf($fileUrl)
     ->text();
+var_dump($pdfString);
 
 if ($pdfString === '') {
+  echo 'run ocrmypdf';
   $tempImage = sys_get_temp_dir().'\tempFile.pdf';
-  copy($fileUrl, $tempImage);
-  exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code);
+  if (!copy($fileUrl, $tempImage)) {
+    echo "La copie $fileUrl --> $tempImage a échoué...\n";
+  } else {
+    echo "La copie $fileUrl --> $tempImage a réussi...\n";
+  }
+  //copy($fileUrl, $tempImage);
+  if (exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code)) {
+    echo "OCR works";
+  } else {
+    echo "OCR NOT works";
+  };
+  //exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code);
   $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
       ->setPdf(sys_get_temp_dir().'\processedTempFile.pdf')
       ->text();
 };
 
-unlink(sys_get_temp_dir().'\processedTempFile.pdf')
-unlink($tempImage)
+unlink(sys_get_temp_dir().'\processedTempFile.pdf');
+unlink($tempImage);
 $data = array('emails' => getEmailsByString($pdfString),
               'urls' => getUrlsByString($pdfString),
               'phones' => getPhonesNumbersByString($pdfString),
