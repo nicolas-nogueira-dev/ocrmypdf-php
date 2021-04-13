@@ -1,7 +1,7 @@
 <?php
 require __DIR__.'/vendor/autoload.php';
 use Spatie\PdfToText\Pdf;
-use thiagoalessio\TesseractOCR\TesseractOCR;
+//use thiagoalessio\TesseractOCR\TesseractOCR;
 
 function getEmailsByString($string) {
   $pattern = '/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]+)(?:\.[a-z]{2})?/i';
@@ -16,76 +16,86 @@ function getUrlsByString($string) {
 }
 
 function getPhonesNumbersByString($string) {
-  $pattern = '/^[\.-)( ]*([0-9]{3})[\.-)( ]*([0-9]{3})[\.-)( ]*([0-9]{4})$/i';
-  preg_match_all($pattern, $string, $matches);
-  return array_unique($matches[0]);
-}
+  $pattern1 = '/((?:\+|00)[17](?: |\-)?|(?:\+|00)[1-9]\d{0,2}(?: |\-)?|(?:\+|00)1\-\d{3}(?: |\-)?)?(0\d|\([0-9]{3}\)|[1-9]{0,3})(?:((?: |\-)[0-9]{2}){4}|((?:[0-9]{2}){4})|((?: |\-)[0-9]{3}(?: |\-)[0-9]{4})|([0-9]{7}))/i';
+  preg_match_all($pattern1, $string, $search1);
+  return array_unique($search1[0]);
+};
 
-$fileUrl = 'https://mmedia-storage-bucket.s3.eu-west-3.amazonaws.com/files/14/bFq3WpqKn6NCEoBWN9zJLa2V0zi5Ev9ozMa9Ejyk.pdf';
+//$fileUrl = 'https://mmedia-storage-bucket.s3.eu-west-3.amazonaws.com/files/14/bFq3WpqKn6NCEoBWN9zJLa2V0zi5Ev9ozMa9Ejyk.pdf';
+$fileUrl = 'pdf/testImage.pdf';
 
 $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
-    ->setPdf($filename)
+    ->setPdf($fileUrl)
     ->text();
 
 if ($pdfString === '') {
-  $pathInfo = pathinfo($url);
-  $tempImage = tempnam(sys_get_temp_dir(), "tempFile.pdf");
+  $tempImage = sys_get_temp_dir().'\tempFile.pdf';
   copy($fileUrl, $tempImage);
-  $result = exec('ocrmypdf -l fra+eng+deu /tmp/tempFile.pdf /tmp/processedTempFile.pdf');
-  exec('ocrmypdf -l fra+eng $path $pathToSave');
-  $command = 'ocrmypdf -l fra+eng '.escapeshellarg($filename).' imageOutputTemp2'.'.png';
-  exec($command)
-  /*
-  $image = new imagick();
-  $image->setResolution(600,600);
-  $image->readImage(realpath($filename));
-  $img_resol = $image->getImageResolution();
-  var_dump($img_resol);
-  $image->setImageFormat("png");
-  //-------Transformation
-  //$imageWidth = $image->getImageWidth()*2;
-  //$image->resizeImage($imageWidth, 0, \Imagick::FILTER_LANCZOS, 1, false);
-  //$image->enhanceImage();
-  //$image->autoLevelImage();
-  //$image->quantizeImage(2, Imagick::COLORSPACE_GRAY, 1, TRUE, FALSE);
-  //$image->sharpenimage(20, 10, true);
-  //$image->contrastImage(0);
-  //$image->brightnessContrastImage(0, 50);
-  //$image->resizeImage($imageWidth/2, 0, \Imagick::FILTER_LANCZOS, 1, false);
+  exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code);
+  $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
+      ->setPdf(sys_get_temp_dir().'\processedTempFile.pdf')
+      ->text();
+};
 
-  //--------End Transformation
-  $image->writeImage(__DIR__."/".'imageOutputTemp2'.'.png');
-
-  //Using Imagick
-  $data = $image->getImageBlob();
-  $size = $image->getImageLength();
-  */
-  $pdfString = (new TesseractOCR("imageOutputTemp2.png"))
-  //->imageData($data, $size)
-  ->executable('C:\ProgramData\chocolatey\lib\capture2text\tools\Capture2Text\Utils\tesseract\tesseract.exe')
-  ->allowlist(range('A', 'z'), range('À', 'ú'), range(0, 9), '-_@.:/')// A-zÀ-ú
-  ->lang('eng', 'fra')
-  ->run();
-}
-
-
-
-var_dump($pdfString);
-
-$emails = getEmailsByString($pdfString);
-echo "Emails found:</br>";
-var_dump($emails);
 echo "</br>";
-$urls = getUrlsByString($pdfString);
-echo "Urls found:</br>";
-var_dump($urls);
+if (!unlink($tempImage)) {
+    echo ("$tempImage cannot be deleted due to an error");
+}
+else {
+  echo ("$tempImage has been deleted");
+};
+echo "</br>";
+if (!unlink(sys_get_temp_dir().'\processedTempFile.pdf')) {
+    echo ("ProcessedTempFile cannot be deleted due to an error");
+}
+else {
+  echo ("ProcessedTempFile has been deleted");
+};
+echo "</br>";
+echo($pdfString);
+
+$data = array('emails' => getEmailsByString($pdfString),
+              'urls' => getUrlsByString($pdfString),
+              'phones' => getPhonesNumbersByString($pdfString),
+              );
+
+var_dump($data);
+
+
+
 /*
-$phones = getPhonesNumbersByString($pdfString);
-echo "Phones Number found:</br>";
-var_dump($phones);
+$pdfString = (new TesseractOCR("imageOutputTemp2.png"))
+//->imageData($data, $size)
+->executable('C:\ProgramData\chocolatey\lib\capture2text\tools\Capture2Text\Utils\tesseract\tesseract.exe')
+->allowlist(range('A', 'z'), range('À', 'ú'), range(0, 9), '-_@.:/')// A-zÀ-ú
+->lang('eng', 'fra')
+->run();
 */
+/*
+$image = new imagick();
+$image->setResolution(600,600);
+$image->readImage(realpath($filename));
+$img_resol = $image->getImageResolution();
+var_dump($img_resol);
+$image->setImageFormat("png");
+//-------Transformation
+//$imageWidth = $image->getImageWidth()*2;
+//$image->resizeImage($imageWidth, 0, \Imagick::FILTER_LANCZOS, 1, false);
+//$image->enhanceImage();
+//$image->autoLevelImage();
+//$image->quantizeImage(2, Imagick::COLORSPACE_GRAY, 1, TRUE, FALSE);
+//$image->sharpenimage(20, 10, true);
+//$image->contrastImage(0);
+//$image->brightnessContrastImage(0, 50);
+//$image->resizeImage($imageWidth/2, 0, \Imagick::FILTER_LANCZOS, 1, false);
 
+//--------End Transformation
+$image->writeImage(__DIR__."/".'imageOutputTemp2'.'.png');
 
+//Using Imagick
+$data = $image->getImageBlob();
+$size = $image->getImageLength();
+*/
 /*
 $pattern = '/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]+)(?:\.[a-z]{2})?/i';
 preg_match_all($pattern, $pdfString, $matches);

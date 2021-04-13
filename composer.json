@@ -1,6 +1,5 @@
 {
     "require": {
-      "spatie/pdf-to-text": "^1.4",
-      "thiagoalessio/tesseract_ocr": "^2.11"
+      "spatie/pdf-to-text": "^1.4"
     }
 }
