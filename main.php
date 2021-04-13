@@ -28,26 +28,28 @@ $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
 var_dump($pdfString);
 
 if ($pdfString === '') {
-  echo 'run ocrmypdf';
-  $tempImage = sys_get_temp_dir().'\tempFile.pdf';
+  echo 'run ocrmypdf </br>';
+  $tempImage = strtolower(sys_get_temp_dir()).'\tempFile.pdf';
   if (!copy($fileUrl, $tempImage)) {
-    echo "La copie $fileUrl --> $tempImage a échoué...\n";
+    echo "La copie $fileUrl --> $tempImage a échoué... </br>";
   } else {
-    echo "La copie $fileUrl --> $tempImage a réussi...\n";
+    echo "La copie $fileUrl --> $tempImage a réussi... </br>";
   }
   //copy($fileUrl, $tempImage);
-  if (exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code)) {
-    echo "OCR works";
+  if (exec('ocrmypdf '.$tempImage.' '.strtolower(sys_get_temp_dir()).'\processedTempFile.pdf', $output, $result_code)) {
+    echo "OCR works </br>";
   } else {
-    echo "OCR NOT works";
+    echo "OCR NOT works </br>";
+    var_dump($output);
+    var_dump($result_code);
   };
   //exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code);
   $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
-      ->setPdf(sys_get_temp_dir().'\processedTempFile.pdf')
+      ->setPdf(strtolower(sys_get_temp_dir()).'\processedTempFile.pdf')
       ->text();
 };
-
-unlink(sys_get_temp_dir().'\processedTempFile.pdf');
+echo "removing files... </br>";
+unlink(strtolower(sys_get_temp_dir()).'\processedTempFile.pdf');
 unlink($tempImage);
 $data = array('emails' => getEmailsByString($pdfString),
               'urls' => getUrlsByString($pdfString),
