@@ -9,7 +9,7 @@ function getEmailsByString($string) {
 }
 
 function getUrlsByString($string) {
-  $pattern = '/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/i';
+  $pattern = '/((https?):\/\/)?[-a-zA-Z0-9:%._\+~#]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9():%_\+.~#?&=]*)/i';
   preg_match_all($pattern, $string, $matches);
   return array_unique($matches[0]);
 }
@@ -20,30 +20,25 @@ function getPhonesNumbersByString($string) {
   return array_unique($search1[0]);
 };
 
-$fileUrl = 'pdf/certificate.pdf';
+$fileUrl = 'pdf/cv-facebook.pdf';
 
 $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
     ->setPdf($fileUrl)
     ->text();
-var_dump($pdfString);
+
 
 if ($pdfString === '') {
   echo 'run ocrmypdf </br>';
   $tempImage = sys_get_temp_dir().'\tempFile.pdf';
-  if (!copy($fileUrl, $tempImage)) {
+  var_dump($tempImage);
+  if (copy($fileUrl, $tempImage)) {
     echo "$fileUrl --> $tempImage done </br>";
   } else {
     echo "$fileUrl --> $tempImage failed </br>";
   }
   //copy($fileUrl, $tempImage);
-  if (exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code)) {
-    echo "OCR works </br>";
-  } else {
-    echo 'ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf';
-    echo "</br> OCR NOT works </br>";
-    var_dump($output);
-    var_dump($result_code);
-  };
+  exec('ocrmypdf C:\WINDOWS\TEMP\tempFile.pdf C:\WINDOWS\TEMP\processedTempFile.pdf', $output, $result_code);
+
   //exec('ocrmypdf '.$tempImage.' '.sys_get_temp_dir().'\processedTempFile.pdf', $output, $result_code);
   $pdfString = (new Pdf('C:/poppler-0.68.0/bin/pdftotext.exe'))
       ->setPdf(sys_get_temp_dir().'\processedTempFile.pdf')
@@ -58,3 +53,4 @@ $data = array('emails' => getEmailsByString($pdfString),
               'phones' => getPhonesNumbersByString($pdfString),
               );
 var_dump($data);
+echo($pdfString);
